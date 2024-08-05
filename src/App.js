@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import Auth from "./pages/auth";
 import Layout from "./layout";
+import Register from "./pages/auth/Register";
 
 function App() {
   const auth = localStorage.getItem("token");
@@ -9,8 +10,9 @@ function App() {
   } else {
     return (
       <>
-        <Auth />
-        <Navigate to={"/login"} />
+        {/* <Auth /> */}
+        <Register />
+        {/* <Navigate to={"/login"} /> */}
       </>
     );
   }
