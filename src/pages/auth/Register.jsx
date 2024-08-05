@@ -1,13 +1,93 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import { FaRegUser } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
+import Rodal from "rodal";
+import "rodal/lib/rodal.css";
 import logo from "../../assets/applogo.png";
 import "./register.css";
+import OtpInput from 'react-otp-input';
+import { json, useNavigate } from "react-router-dom";
 
 const Register = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const [otp, setOtp] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [seconds, setSeconds] = useState(60);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (seconds > 0) {
+      const timer = setTimeout(() => setSeconds(seconds - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [seconds]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
+  const handlePhoneNumberChange = (event) => {
+    setPhone(event.target.value);
+  };
+
+  const resendOtp = async () => {
+    const tel = localStorage.getItem("tel")
+
+    try {
+      const response = await fetch("https://api.frossh.uz/api/auth/resend", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: { phone: tel }
+      });
+      if (!response.ok) {
+        throw new Error('HTTP error, status = ' + response.status);
+      }
+      const data = await response.json();
+      console.log("OTP resent:", data);
+      setSeconds(59);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  };
+
+  const verifyOtp = async () => {
+    const url = "http://192.168.100.35/api/v1/auth/verify";
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
+    const body = {
+      phone: localStorage.getItem("tel"),
+      code: otp,
+    };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log("OTP verified:", data);
+      const token = data.result.token;
+      const tokenWithoutId = token.split('|').slice(1).join('|');
+      document.cookie = `token=${tokenWithoutId}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+      setSeconds(59);
+      setOtp("");
+      navigate('/moder');
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      setOtp(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -19,11 +99,11 @@ const Register = () => {
     formData.append('channel_description', data.about_channel);
     formData.append('email', data.email);
     formData.append('password', data.password);
-    formData.append('phone', data.phone); // Added phone number field
+    formData.append('phone', data.phone);
     formData.append('channel_screenshot', data.screenshot[0]);
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://192.168.100.35/api/v1/auth/register",
         formData,
         {
@@ -33,10 +113,39 @@ const Register = () => {
           },
         }
       );
-      console.log(response.data);
+      setPhone(data.phone);
+      setIsModalVisible(true); // Show the modal on successful submission
+      await sendOtp(data.phone); // Send OTP to the user's phone
+      localStorage.setItem('tel', data.phone)
+      console.log(data.phone);
     } catch (error) {
       console.error("Error submitting form", error);
     }
+  };
+
+  const sendOtp = async (phone) => {
+    const url = "http://192.168.100.35/api/v1/auth/resend";
+    const headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
+    const body = { phone };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      console.log("OTP sent:", data);
+    } catch (error) {
+      console.error("Error sending OTP", error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
   };
 
   return (
@@ -64,6 +173,7 @@ const Register = () => {
                     {...register('name', { required: true })}
                   />
                 </div>
+                {errors.name && <p className="error">Ism kiritilishi shart</p>}
               </label>
               <label htmlFor="username">
                 <p>Foydalanuvchi nomi</p>
@@ -76,6 +186,7 @@ const Register = () => {
                     {...register('username', { required: true })}
                   />
                 </div>
+                {errors.username && <p className="error">Foydalanuvchi nomi kiritilishi shart</p>}
               </label>
               <label htmlFor="channelname">
                 <p>Kanalingiz nomi</p>
@@ -88,6 +199,7 @@ const Register = () => {
                     {...register('channelname', { required: true })}
                   />
                 </div>
+                {errors.channelname && <p className="error">Kanalingiz nomi kiritilishi shart</p>}
               </label>
               <label htmlFor="channellink">
                 <p>Kanalingiz Havolasi (ssilkasi)</p>
@@ -100,6 +212,7 @@ const Register = () => {
                     {...register('channellink', { required: true })}
                   />
                 </div>
+                {errors.channellink && <p className="error">Kanalingiz havolasi kiritilishi shart</p>}
               </label>
               <label htmlFor="email">
                 <p>Email</p>
@@ -112,6 +225,7 @@ const Register = () => {
                     {...register('email', { required: true })}
                   />
                 </div>
+                {errors.email && <p className="error">Email kiritilishi shart</p>}
               </label>
               <label htmlFor="about_channel">
                 <p>Kanal haqida</p>
@@ -124,6 +238,7 @@ const Register = () => {
                     {...register('about_channel', { required: true })}
                   />
                 </div>
+                {errors.about_channel && <p className="error">Kanal haqida ma'lumot kiritilishi shart</p>}
               </label>
               <label htmlFor="screenshot">
                 <p>
@@ -137,6 +252,7 @@ const Register = () => {
                     {...register('screenshot', { required: true })}
                   />
                 </div>
+                {errors.screenshot && <p className="error">Screenshot yuklash shart</p>}
               </label>
               <label htmlFor="password">
                 <p>Parol</p>
@@ -149,6 +265,7 @@ const Register = () => {
                     {...register('password', { required: true })}
                   />
                 </div>
+                {errors.password && <p className="error">Parol kiritilishi shart</p>}
               </label>
               <label htmlFor="password_again">
                 <p>Parol takroran</p>
@@ -161,18 +278,22 @@ const Register = () => {
                     {...register('password_again', { required: true })}
                   />
                 </div>
+                {errors.password_again && <p className="error">Parol takroran kiritilishi shart</p>}
               </label>
               <label htmlFor="phone">
                 <p>Telefon raqamingiz</p>
                 <div className="input">
                   <FaRegUser />
                   <input
-                    type="text"
+                    type="tel"
                     id="phone"
                     placeholder="Telefon raqami"
                     {...register('phone', { required: true })}
+                    value={phone}
+                    onChange={handlePhoneNumberChange}
                   />
                 </div>
+                {errors.phone && <p className="error">Telefon raqam kiritilishi shart</p>}
               </label>
             </div>
             <div className="checkbox">
@@ -182,6 +303,7 @@ const Register = () => {
                 <a href="https://idonate.uz/assets/terms.pdf">Ommaviy oferta</a>
                 ni o'qib chiqdim va qabul qilaman.
               </p>
+              {errors.terms && <p className="error">Shartlarni qabul qilish shart</p>}
             </div>
             <button type="submit">Ro'yhatdan o'tish</button>
             <p>
@@ -200,6 +322,41 @@ const Register = () => {
         <a href="https://idonate.uz/privacy-policy">Maxfiylik siyosati</a>
         <a href="https://idonate.uz/public-offer">Ommaviy oferta</a>
       </div>
+      <Rodal visible={isModalVisible} onClose={handleCloseModal}>
+        <div className="modal-content">
+          <h2>OTP Verification</h2>
+          <OtpInput
+            value={otp}
+            onChange={setOtp}
+            numInputs={6}
+            renderSeparator={<span style={{ margin: "0 5px" }}>  </span>}
+            renderInput={(props, index) => (
+              <input
+                {...props}
+                key={index}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  textAlign: "center",
+                  border: `2px solid ${seconds === 0 || otp === false ? "red" : "black"}`,
+                  borderRadius: "15px",
+                  margin: "0 5px",
+                  fontSize: "23px",
+                }}
+              />
+            )}
+          />
+          <div className="qaytayuborish">
+            <span style={seconds === 0 ? { color: "red" } : { color: "black" }}>{formatTime(seconds)}</span>
+            {seconds === 0 && (
+              <span className="calumsms">
+                <span onClick={resendOtp} className="qayta">Kod kelmadimi? Qayta yuborish</span>
+              </span>
+            )}
+          </div>
+          <button onClick={verifyOtp}>Tasdiqlash</button>
+        </div>
+      </Rodal>
     </div>
   );
 };
