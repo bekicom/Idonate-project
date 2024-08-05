@@ -82,7 +82,7 @@ const Register = () => {
       document.cookie = `token=${tokenWithoutId}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       setSeconds(59);
       setOtp("");
-      navigate('/moder');
+      navigate('/login');
     } catch (error) {
       console.error("Error verifying OTP:", error);
       setOtp(false);
