@@ -8,7 +8,7 @@ import "rodal/lib/rodal.css";
 import logo from "../../assets/applogo.png";
 import "./register.css";
 import OtpInput from 'react-otp-input';
-import { json, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 
 const Register = () => {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -20,7 +20,7 @@ const Register = () => {
 
   useEffect(() => {
     if (seconds > 0) {
-      const timer = setTimeout(() => setSeconds(seconds - 1), 1000);
+      const timer = setTimeout(() => setSeconds(seconds - 1), 2000);
       return () => clearTimeout(timer);
     }
   }, [seconds]);
@@ -322,10 +322,11 @@ const Register = () => {
         <a href="https://idonate.uz/privacy-policy">Maxfiylik siyosati</a>
         <a href="https://idonate.uz/public-offer">Ommaviy oferta</a>
       </div>
-      <Rodal visible={isModalVisible} onClose={handleCloseModal}>
+      <Rodal  className="rodal" visible={isModalVisible}  width={650} height={350}  onClose={handleCloseModal}>
         <div className="modal-content">
-          <h2>OTP Verification</h2>
+          <h2>Tasdiqlash kodini kiriting </h2>
           <OtpInput
+           
             value={otp}
             onChange={setOtp}
             numInputs={6}
@@ -350,7 +351,7 @@ const Register = () => {
             <span style={seconds === 0 ? { color: "red" } : { color: "black" }}>{formatTime(seconds)}</span>
             {seconds === 0 && (
               <span className="calumsms">
-                <span onClick={resendOtp} className="qayta">Kod kelmadimi? Qayta yuborish</span>
+                <span onClick={resendOtp} className="qayta">Kod kelmadimi? <i>Qayta yuborish</i></span>
               </span>
             )}
           </div>

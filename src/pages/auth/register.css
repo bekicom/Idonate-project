@@ -138,3 +138,36 @@ form  > p {
 .right > a {
   color: #007bff;
 }
+
+.rodal{
+  width: 100%;
+  height: 100%;
+  background-color: rgba(63, 62, 63, 0.589);
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 25px;
+}
+
+.modal-content{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 20px
+}
+.modal-content > button{
+  color: seagreen;
+  font-size: 25px;
+  margin: 0 auto;
+}
+.qaytayuborish{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+span > i{
+  color: seagreen;
+  cursor: pointer;
+}
