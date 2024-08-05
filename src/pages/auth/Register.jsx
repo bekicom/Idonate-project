@@ -81,6 +81,8 @@ const Register = () => {
       const tokenWithoutId = token.split('|').slice(1).join('|');
       document.cookie = `token=${tokenWithoutId}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       setSeconds(59);
+      setIsModalVisible(false)
+
       setOtp("");
       navigate('/login');
     } catch (error) {
