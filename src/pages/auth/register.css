@@ -1,5 +1,4 @@
 .register {
-  max-width: 1440px;
   width: 100%;
   display: flex;
   width: 100vw;
@@ -28,10 +27,10 @@
   display: flex;
   flex-direction: column;
 }
-.text > h5 {
+.text > b{
   color: #b1b1b5;
   font-size: 20px;
-  font-weight: 300;
+  font-weight: 500;
 }
 .text > h6 {
   color: #80838e;
@@ -82,7 +81,7 @@
 }
 .checkbox {
   display: flex;
-  gap: 12px;
+  padding: 20px 0 20px 0;
 }
 .checkbox > input {
   border: none !important;
@@ -98,7 +97,7 @@
 .checkbox > p > a {
   color: #007bff;
 }
-.left-box > button {
+form> button {
   width: 100%;
   display: flex;
   align-items: center;
@@ -109,10 +108,12 @@
   font-weight: 200;
   font-size: 18px;
   border-radius: 4px;
+  margin-bottom: 25px;
 }
-.left-box > p {
-  color: #80838e;
-  font-size: 16px;
+form  > p {
+  width: 100%;
+  color: white;
+  font-size: 14px;
   font-weight: 300;
   text-align: center;
 }
