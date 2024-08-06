@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Routes, Route } from "react-router-dom";
-import { RootRoutes } from "../routes";
+import RootRoutes from "../routes";
 import { Footer, Header, Sidebar } from "../components";
 import { MyBooleanContext } from "../context";
 import useScrollToTop from "../hooks/scrollToTop";
