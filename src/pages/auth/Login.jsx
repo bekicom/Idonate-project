@@ -20,7 +20,7 @@ function Login() {
       
       if (data) {
         localStorage.setItem("token", data.token);
-        navigate("/page"); // muvaffaqiyatli login bo'lsa, "/page" sahifasiga o'tish
+        navigate("/dashboard"); // muvaffaqiyatli login bo'lsa, "/page" sahifasiga o'tish
       }
     } catch (error) {
       setError(error?.data?.message || "Noto'g'ri login ma'lumotlari");

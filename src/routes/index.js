@@ -14,7 +14,6 @@ import Register from '../pages/auth/Register';
 
 const RootRoutes = () => (
   <Routes>
-    <Route path="/" element={<Navigate to="/login" />} />
     <Route path="login" element={<Login />} />
     <Route path="dashboard" element={<Dashboard />} />
     <Route path="profile" element={<Profile />} />
