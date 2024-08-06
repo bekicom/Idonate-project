@@ -1,18 +1,32 @@
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./login.css";
 import logo from "../../assets/applogo.png";
 import { IconMail, IconLock } from "@tabler/icons-react";
+import { useSingInMutation } from "../../context/service/auth.service";
 
 function Login() {
   let navigate = useNavigate();
-  function handleSubmit(e) {
-    e.preventDefault();
-    let data = new FormData(e.target);
-    const formData = Object.fromEntries(data);
-    localStorage.setItem("token", JSON.stringify(formData));
-    navigate("/");
-    window.location.reload();
-  }
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [singIn, { isLoading }] = useSingInMutation();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
+    try {
+      const { data } = await singIn({ email, password });
+      
+      if (data) {
+        localStorage.setItem("token", data.token);
+        navigate("/page"); // muvaffaqiyatli login bo'lsa, "/page" sahifasiga o'tish
+      }
+    } catch (error) {
+      setError(error?.data?.message || "Noto'g'ri login ma'lumotlari");
+    }
+  };
+
   return (
     <div className="login">
       <div className="container">
@@ -26,7 +40,7 @@ function Login() {
             <span>Sizni yana ko'rganimizdan xursandmiz!</span>
           </div>
           {/* FORM START */}
-          <form onSubmit={handleSubmit} className="login_form">
+          <form className="login_form" onSubmit={handleSubmit}>
             <label className="label">Elektron pochta</label>
             <div className="login_input">
               <cite>
@@ -36,6 +50,8 @@ function Login() {
                 name="email"
                 type="email"
                 placeholder="test_admin@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <label className="label">Parol</label>
@@ -43,15 +59,24 @@ function Login() {
               <cite>
                 <IconLock />
               </cite>
-              <input name="password" type="password" placeholder="Password" />
+              <input
+                name="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <label className="custom_checkbox">
               <input className="checkbox" type="checkbox" />
               <span className="checkmark">Meni eslab qol</span>
             </label>
-            <button className="btn_indigo">kirish</button>
+            <button className="btn_indigo" type="submit" disabled={isLoading}>
+              kirish
+            </button>
           </form>
           {/* FORM END */}
+          {error && <p className="error">{error}</p>}
           <div className="contact">
             <span>
               Murojaat uchun telegram
@@ -59,7 +84,7 @@ function Login() {
               <a href="mailto:info@idonate.uz">info@idonate.uz</a>
             </span>
             <span>
-              Akkauntingiz yo'qmi? <Link  to={'register'} >Ro'yhatdan o'tish</Link>
+              Akkauntingiz yo'qmi? <Link to={'/register'}>Ro'yhatdan o'tish</Link>
             </span>
           </div>
         </div>

@@ -76,8 +76,11 @@ const Register = () => {
         body: JSON.stringify(body),
       });
       const data = await response.json();
-      console.log("OTP verified:", data);
+      console.log("OTP verified:", data.result);
+      localStorage.setItem('fulluserdata' , JSON.stringify(data.result))
       const token = data.result.token;
+
+      localStorage.setItem('token' , token)
       const tokenWithoutId = token.split('|').slice(1).join('|');
       document.cookie = `token=${tokenWithoutId}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       setSeconds(59);

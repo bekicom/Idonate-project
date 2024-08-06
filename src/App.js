@@ -3,17 +3,18 @@ import Auth from "./pages/auth";
 import Layout from "./layout";
 import Register from "./pages/auth/Register";
 import Login from "./pages/auth/Login";
+import RootRoutes from "./routes";
 
 function App() {
   const auth = localStorage.getItem("token");
+
+  console.log(auth);
   if (auth) {
-    return <Layout />;
+    return  <RootRoutes/>;
   } else {
     return (
       <>
-        {/* <Auth /> */}
-    <Login/>
-        {/* <Navigate to={"/login"} /> */}
+    <Register/>
       </>
     );
   }
